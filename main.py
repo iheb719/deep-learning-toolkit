@@ -1,9 +1,9 @@
 
 
-from LoadData import *
-from TrainModel import *
-from Plot import *
-from utils.Save_to_file import *
+from load_data import *
+from train_model import *
+from plot import *
+from utils.save_to_file import *
 import datetime
 
 
@@ -43,7 +43,10 @@ weight_initialization = 'glorot_uniform'  # https://towardsdatascience.com/deep-
 # I don't know a scenario when batch normalization should be disabled
 batch_normalization = [True]
 
-for current_input_stardardization_method in input_standardization:
+# variable utils
+output_file_path = None
+
+for idx, current_input_stardardization_method in enumerate(input_standardization):
 
     # loaded_table, input, output = ld.load('./data/TechCrunchcontinentalUSA.csv', columns_to_discard=['permalink', 'company', 'category', 'city', 'fundedDate', 'raisedCurrency', 'round'], columns_to_encode=['state'], independent_variable='raisedAmt')
     # loaded_table, input, output = ld.load('./data/pima-indians-diabetes.data.csv')
@@ -60,7 +63,15 @@ for current_input_stardardization_method in input_standardization:
 
     # train duration ???????????
 
-    SaveToFile.save_to_excel('./output/' + dataset_filename + datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S") + '.xls', 'result_sheet', results)
+    # format results to save to file
+    formatted_results = save_to_file.SaveToFile.format_gridsearchcv_result(results,
+                                                                           [('input stardardization method', current_input_stardardization_method)]
+                                                                           )
+
+    append_to_file = False if idx == 0 else True
+    skip_first_line = True if append_to_file else False
+    output_file_path = output_file_path if output_file_path != None else './output/' + dataset_filename + datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S") + '.xls'
+    SaveToFile.save_to_excel(output_file_path, 'result_sheet', formatted_results, append_to_file, skip_first_line)
 
     # if nb_validation_split == 1:
     #     plot.plot([history.history['acc'], history.history['val_acc']], title='model accuracy', x_label='epoch', y_label='accuracy')

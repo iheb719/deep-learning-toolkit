@@ -1,11 +1,13 @@
 
 import pandas as pd
 import numpy as np
+from scipy.io.arff import loadarff
+
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import LabelEncoder
 from keras.utils import np_utils
 
-from utils.Stardization import Standardization
+from utils.stardization import Standardization
 
 
 class LoadData:
@@ -35,7 +37,7 @@ class LoadData:
         return dummy_y
 
     def load(self, path, columns_to_discard='', columns_to_hot_encode='', independent_variable='', input_standardization=False):
-        loaded_table = pd.read_csv(filepath_or_buffer=path, skiprows=0)
+        loaded_table = self.load_file_by_type(path)
         # loaded_table = loaded_table[(loaded_table['State'] == 'California')]
         # encoded_columns = LoadData.encode(loaded_table.iloc[:, [3]])
         # take only 2 out of 3 states to avoid the dummy variable trap
@@ -68,6 +70,21 @@ class LoadData:
             output = loaded_table.iloc[:, -1]  # take only the last column
 
         return loaded_table, input, output
+
+    @staticmethod
+    def load_file_by_type(path):
+        """ load a file and returns a panda dataframe """
+        if path is None:
+            raise ValueError('input file is empty')
+
+        if path.endswith('.csv'):
+            return pd.read_csv(filepath_or_buffer=path, skiprows=0)
+
+        if path.endswith('.arff'):  # weka files
+            raw_data = loadarff(path)
+            return pd.DataFrame(raw_data[0])
+
+        raise ValueError('input file type not supported')
 
     @staticmethod
     def drop_columns(loaded_table, columns_to_drop):

@@ -15,7 +15,7 @@ from sklearn.model_selection import ShuffleSplit
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import PredefinedSplit
 
-from utils import Save_to_file
+from utils import save_to_file
 
 import sklearn
 import random
@@ -86,7 +86,7 @@ class TrainModel:
         for mean, stdev, param in zip(means, stds, params):
             print("%f (%f) with: %r" % (mean, stdev, param))
 
-        return model, Save_to_file.SaveToFile.format_gridsearchcv_result(grid_result)
+        return model, grid_result
 
         # val_list = []
         #
