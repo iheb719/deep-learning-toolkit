@@ -2,7 +2,8 @@ import xlwt
 from openpyxl import load_workbook
 from xlrd import open_workbook
 from xlutils.copy import copy
-from utils import arial10
+from common_utils import arial10
+from common_utils.str_utils import StrUtils
 
 
 class SaveToFile:
@@ -63,8 +64,7 @@ class SaveToFile:
             for current_column_nb, current_cell in enumerate(current_line):
                 # print(current_line_nb, current_column_nb)
                 # print(type(current_cell))
-                cell_content = str(current_cell[0]) if type(current_cell) == list else str(current_cell)
-                sh.write(current_line_nb + nb_rows, current_column_nb, cell_content)
+                sh.write(current_line_nb + nb_rows, current_column_nb, StrUtils.str_write(current_cell))
 
         book.save(filename)
 

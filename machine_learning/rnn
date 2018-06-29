@@ -1,0 +1,70 @@
+import numpy
+import matplotlib.pyplot as plt
+import pandas
+import math
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.model_selection import GridSearchCV
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_squared_error
+
+from machine_learning.ml_utils import MlUtils
+
+
+class rnn:
+
+    def train(self, input, output, epochs=[10], nb_validation_split=10, shuffle=False,
+              nb_neurone_in_each_hidden_layers=[10], batch_size=[5],
+              activation_function=['relu'],  # activation function for all layer except the last one
+              weight_initialization=['glorot_uniform'],
+              optimizer=['Adam'], batch_normalization=['BeforeActivation'],
+              dropout_rate=[0.2], weight_constraint=[3]):
+
+        #  sigmoid vs softmax : https://stats.stackexchange.com/a/254071
+        # if the independent varible is composed of 1 column
+        if len(output.shape) == 1 or output.shape[1] == 1:
+            loss_fct = 'binary_crossentropy'
+            output_layer_activation = 'sigmoid'
+        else:
+            loss_fct = 'categorical_crossentropy'
+            output_layer_activation = 'softmax'
+
+        # when the input data is small or if you have sufficient compute resources use kfold validation
+        output_dim = 1 if len(output.shape) == 1 else output.shape[1]
+        param_grid = dict(input_dim=[input.shape[1]], output_dim=[output_dim], loss_fct=[loss_fct],
+                          output_layer_activation=[output_layer_activation], epochs=epochs,
+                          nb_neurone_in_each_hidden_layers=nb_neurone_in_each_hidden_layers,
+                          activation_function=activation_function, weight_initialization=weight_initialization,
+                          batch_size=batch_size, optimizer=optimizer, batch_normalization=batch_normalization,
+                          dropout_rate=dropout_rate, weight_constraint=weight_constraint)
+        model = KerasClassifier(build_fn=self.get_model, verbose=10)
+
+        cv = MlUtils.get_cross_validation(nb_validation_split, shuffle, output.shape[1])
+
+        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=cv)
+        grid_result = grid.fit(input, output)
+
+        MlUtils.print_gridsearch_results(grid_result)
+
+        return model, grid_result
+
+        model.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2)
+
+    def get_model(self, input_dim=8, output_dim=1, loss_fct='binary_crossentropy',
+                      output_layer_activation='sigmoid',
+                      nb_neurone_in_each_hidden_layers=[10], activation_function='relu',
+                      weight_initialization='glorot_uniform',
+                      optimizer='Adam', batch_normalization='BeforeActivation',
+                      dropout_rate=[0.2], weight_constraint=[3]):
+
+        # create and fit the LSTM network
+        model = Sequential()
+        model.add(LSTM(4, input_shape=(input_dim, look_back)))
+        model.add(Dense(1))
+        model.compile(loss='mean_squared_error', optimizer='adam')
+
+        # Compile model
+        model.compile(loss=loss_fct, optimizer=optimizer, metrics=['accuracy'])
+        return model

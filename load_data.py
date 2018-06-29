@@ -7,7 +7,9 @@ from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import LabelEncoder
 from keras.utils import np_utils
 
-from utils.stardization import Standardization
+from common_utils.stardization import Standardization
+
+from typing import List
 
 
 class LoadData:
@@ -36,7 +38,7 @@ class LoadData:
         dummy_y = np_utils.to_categorical(encoded_Y)
         return dummy_y
 
-    def load(self, path, columns_to_discard='', columns_to_hot_encode='', independent_variable='', input_standardization=False):
+    def load(self, path:str, columns_to_discard:List[str]='', columns_to_hot_encode:List[str]='', independent_variable:str='', input_standardization:bool=False):
         loaded_table = self.load_file_by_type(path)
         # loaded_table = loaded_table[(loaded_table['State'] == 'California')]
         # encoded_columns = LoadData.encode(loaded_table.iloc[:, [3]])
@@ -59,7 +61,7 @@ class LoadData:
         print(loaded_table)
 
         if independent_variable != '':
-            # output = loaded_table[[independent_variable]]
+            # https://medium.freecodecamp.org/python-list-comprehensions-vs-generator-expressions-cef70ccb49db
             dependent_variable_columns = [col for col in loaded_table if not col.startswith(independent_variable)]
             input = loaded_table[dependent_variable_columns]
 
